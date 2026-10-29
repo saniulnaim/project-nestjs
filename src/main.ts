@@ -1,10 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule, ObserveInstrument } from './app.module.js';
+import { AllExceptionsFilter } from './common/filters/http-exception.filter.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     instrument: ObserveInstrument,
   });
+
+  app.useGlobalFilters(new AllExceptionsFilter()); // সব HTTP route-এর জন্য global exception filter register
   await app.listen(process.env.PORT ?? 3000);
 }
 await bootstrap();

@@ -1,20 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { TasksController } from './tasks.controller.js';
 import { TasksService } from './tasks.service.js';
 
 describe('TasksController', () => {
-  let controller: TasksController;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [TasksController],
-      providers: [TasksService],
-    }).compile();
-
-    controller = module.get<TasksController>(TasksController);
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  it('delegates to the service', () => {
+    const controller = new TasksController(new TasksService());
+    expect(controller.findAll({ completed: undefined })).toHaveLength(2);
+    expect(controller.findOne(1).id).toBe(1);
   });
 });
