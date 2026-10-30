@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { createObserveModule } from '@nestjs/observe';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module.js';
+import { CategoriesModule } from './categories/categories.module.js';
 import { databaseConfig } from './database/database.config.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
@@ -21,6 +22,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     }),
     TypeOrmModule.forRoot(databaseConfig()),
     AuthModule,
+    CategoriesModule,
     TasksModule,
   ],
   controllers: [AppController],
