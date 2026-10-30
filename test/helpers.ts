@@ -47,3 +47,34 @@ export async function loginAdmin(app: INestApplication): Promise<string> {
     .send({ email: 'admin@example.com', password: 'adminpass1' });
   return res.body.token;
 }
+
+/** Creates a product (and a "Gadgets" category on first use) through the API. */
+export async function createProduct(
+  app: INestApplication,
+  admin: string,
+  overrides: Record<string, unknown> = {},
+) {
+  const http = () => request(app.getHttpServer());
+  let categoryId = overrides['categoryId'];
+
+  if (categoryId === undefined) {
+    const existing = (await http().get('/categories')).body[0];
+    categoryId =
+      existing?.id ??
+      (await http().post('/categories').set(bearer(admin)).send({ name: 'Gadgets' }))
+        .body.id;
+  }
+
+  const res = await http()
+    .post('/products')
+    .set(bearer(admin))
+    .send({
+      name: 'Mouse',
+      description: 'A wireless mouse',
+      priceCents: 1999,
+      stock: 10,
+      ...overrides,
+      categoryId,
+    });
+  return res.body as { id: number; name: string; stock: number; priceCents: number };
+}
