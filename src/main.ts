@@ -8,6 +8,6 @@ async function bootstrap() {
   });
 
   app.useGlobalFilters(new AllExceptionsFilter()); // সব HTTP route-এর জন্য global exception filter register
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3001);
 }
 await bootstrap();

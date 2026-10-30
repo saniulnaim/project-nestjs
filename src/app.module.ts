@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { createObserveModule } from '@nestjs/observe';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { databaseConfig } from './database/database.config.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { TasksModule } from './tasks/tasks.module.js';
@@ -16,6 +18,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       appSecret: process.env.OBSERVE_APP_SECRET ?? 'YOUR_APP_SECRET',
       serviceId: 'project-nestjs',
     }),
+    TypeOrmModule.forRoot(databaseConfig()),
     TasksModule,
   ],
   controllers: [AppController],
