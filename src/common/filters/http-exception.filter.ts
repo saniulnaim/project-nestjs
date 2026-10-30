@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Catch,
   HttpException,
   HttpStatus,
   Logger,
+  NotFoundException,
   type ArgumentsHost,
   type ExceptionFilter,
 } from '@nestjs/common';
@@ -14,6 +16,28 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const res = host.switchToHttp().getResponse<Response>();
+
+    // The Express adapter turns the body-parser SyntaxError into
+    // new BadRequestException(error.message), which is the only place a 400
+    // carries Nest's default `error: 'Bad Request'` field. Our own 400s are
+    // built from { message, errors? } objects and never have it.
+    if (
+      exception instanceof BadRequestException &&
+      typeof exception.getResponse() === 'object' &&
+      (exception.getResponse() as Record<string, unknown>)['error'] === 'Bad Request'
+    ) {
+      res.status(HttpStatus.BAD_REQUEST).json({ message: 'Invalid JSON body' });
+      return;
+    }
+
+    // Nest's router raises "Cannot GET /x" for paths no controller handles
+    if (
+      exception instanceof NotFoundException &&
+      /^Cannot [A-Z]+ \//.test(exception.message)
+    ) {
+      res.status(HttpStatus.NOT_FOUND).json({ message: 'Route not found' });
+      return;
+    }
 
     if (exception instanceof HttpException) {
       const body = exception.getResponse();
